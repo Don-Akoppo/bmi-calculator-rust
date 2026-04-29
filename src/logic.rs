@@ -21,3 +21,33 @@ pub fn calculate_bmi(data: BmiInput) -> Result<f64, BmiError> {
 
     Ok(weight_kg / (height_m * height_m))
 }
+#[derive(Debug)]
+pub enum BmiCategory {
+    SevereThinness,
+    ModerateThinness,
+    MildThinness,
+    Normal,
+    OverWeight,
+    ObesityI,
+    ObesityII,
+    ObesityIII,
+}
+pub fn get_category(bmi: f64) -> BmiCategory {
+    if bmi < 16.0 {
+        BmiCategory::SevereThinness
+    } else if bmi < 17.0 {
+        BmiCategory::ModerateThinness
+    } else if bmi < 18.5 {
+        BmiCategory::MildThinness
+    } else if bmi < 25.0 {
+        BmiCategory::Normal
+    } else if bmi < 30.0 {
+        BmiCategory::OverWeight
+    } else if bmi < 35.0 {
+        BmiCategory::ObesityI
+    } else if bmi < 40.0 {
+        BmiCategory::ObesityII
+    } else {
+        BmiCategory::ObesityIII
+    }
+}
