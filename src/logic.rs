@@ -1,26 +1,28 @@
 pub struct BmiInput {
-    pub weight: u32,
-    pub height_cm: u32,
+    pub weight: f64,
+    pub height_cm: f64,
 }
+
 #[derive(Debug)]
 pub enum BmiError {
     InvalidWeight,
     InvalidHeight,
 }
+
 pub fn calculate_bmi(data: BmiInput) -> Result<f64, BmiError> {
-    if data.weight > 700 || data.weight < 10 {
+    if data.weight > 700.0 || data.weight < 10.0 {
         return Err(BmiError::InvalidWeight);
     }
 
-    if data.height_cm > 290 || data.height_cm < 50 {
+    if data.height_cm > 290.0 || data.height_cm < 50.0 {
         return Err(BmiError::InvalidHeight);
     }
 
-    let weight_kg: f64 = data.weight as f64;
-    let height_m: f64 = data.height_cm as f64 * 0.01;
+    let height_m = data.height_cm * 0.01;
 
-    Ok(weight_kg / (height_m * height_m))
+    Ok(data.weight / (height_m * height_m))
 }
+
 #[derive(Debug)]
 pub enum BmiCategory {
     SevereThinness,
@@ -32,6 +34,7 @@ pub enum BmiCategory {
     ObesityII,
     ObesityIII,
 }
+
 pub fn get_category(bmi: f64) -> BmiCategory {
     if bmi < 16.0 {
         BmiCategory::SevereThinness

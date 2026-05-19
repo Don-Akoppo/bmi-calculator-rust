@@ -1,9 +1,9 @@
 mod logic;
 
-use logic::{calculate_bmi, get_category, BmiError, BmiInput};
-use std::io::{self, Write}; // Импортируем io для работы с консолью
+use logic::{BmiInput, calculate_bmi, get_category};
+use std::io::{self, Write};
 
-fn main() -> Result<(), BmiError> {
+fn main() {
     let mut weight_str = String::new();
     let mut height_str = String::new();
 
@@ -19,31 +19,33 @@ fn main() -> Result<(), BmiError> {
         .read_line(&mut height_str)
         .expect("Failed to read line");
 
-    let weight: u32 = match weight_str.trim().parse() {
+    let weight: f64 = match weight_str.trim().parse() {
         Ok(num) => num,
         Err(_) => {
-            println!("Error: Please enter a valid number for weight.");
-            return Ok(());
+            eprintln!("Error: Please enter a valid number for weight.");
+            return;
         }
     };
 
-    let height_cm: u32 = match height_str.trim().parse() {
+    let height_cm: f64 = match height_str.trim().parse() {
         Ok(num) => num,
         Err(_) => {
-            println!("Error: Please enter a valid number for height.");
-            return Ok(());
+            eprintln!("Error: Please enter a valid number for height.");
+            return;
         }
     };
 
     let input = BmiInput { weight, height_cm };
 
-    let bmi = calculate_bmi(input)?;
-    let category = get_category(bmi);
-
-    println!("\n---Result---");
-    println!("Body Mass Index: {:.2}", bmi);
-    println!("Your category: {:?}", category);
-    
-    Ok(())
+    match calculate_bmi(input) {
+        Ok(bmi) => {
+            let category = get_category(bmi);
+            println!("\n--- Result ---");
+            println!("Body Mass Index: {:.2}", bmi);
+            println!("Your category: {:?}", category);
+        }
+        Err(e) => {
+            eprintln!("\nError: Validation failed. {:?}", e);
+        }
+    }
 }
-
