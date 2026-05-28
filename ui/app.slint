@@ -1,0 +1,51 @@
+import { Button, VerticalBox, LineEdit, Text } from "std-widgets.slint";
+
+export component AppWindow inherits Window {
+    
+    title: "BMI_Calculator";
+    width: 400px;
+    height: 300px;
+
+    callback calculate-bmi();
+
+    in-out property <string> weight-text: "";
+    in-out property <string> height-text: "";
+    in-out property <string> result-text: "";
+
+    VerticalBox {
+        alignment: center;
+
+        Text {
+            text: "Weight (kg): ";
+            horizontal-alignment: center;
+        }
+
+        LineEdit {
+            text <=> root.weight-text;
+            placeholder-text: "for example: 70";
+            maximum-width: 200px;
+        }
+
+        Text {
+            text: "Height (cm): ";
+            horizontal-alignment: center;
+        }
+
+        LineEdit {
+            text <=> root.height-text;
+            placeholder-text: "for example: 165";
+            maximum-width: 200px;
+        }
+
+        Button {
+            text: "Calculate Your BMI index";
+            clicked => { root.calculate-bmi(); }
+        }
+
+        Text {
+            text: root.result-text;
+            horizontal-alignment: center;
+        }
+    }
+
+}
