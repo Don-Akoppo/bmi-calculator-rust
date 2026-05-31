@@ -1,7 +1,10 @@
 [package]
 name = "bmi_calculator"
 version = "0.1.0"
-edition = "2026"
+edition = "2021"
 
 [dependencies]
-slint = 1.7
+slint = "1.9"
+
+[build-dependencies]
+slint-build = "1.9"

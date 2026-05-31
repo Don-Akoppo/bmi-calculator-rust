@@ -1,51 +1,60 @@
+slint::include_modules!();
+
 mod logic;
+use logic::{calculate_bmi, get_category, BmiCategory, BmiError, BmiInput};
+fn main() -> Result<(), slint::PlatformError> {
+    let ui = AppWindow::new()?;
+    let ui_weak = ui.as_weak();
 
-use logic::{BmiInput, calculate_bmi, get_category};
-use std::io::{self, Write};
+    ui.on_calculate_bmi(move || {
+        let ui = ui_weak.unwrap();
 
-fn main() {
-    let mut weight_str = String::new();
-    let mut height_str = String::new();
+        let weight_str = ui.get_weight_text().to_string();
+        let height_str = ui.get_height_text().to_string();
 
-    print!("Enter your weight (kg): ");
-    io::stdout().flush().unwrap();
-    io::stdin()
-        .read_line(&mut weight_str)
-        .expect("Failed to read line");
+        let weight: f64 = match weight_str.trim().parse() {
+            Ok(num) => num,
+            Err(_) => {
+                ui.set_result_text("Error: Invalid weight format!".into());
+                return;
+            }
+        };
 
-    print!("Enter your height (cm): ");
-    io::stdout().flush().unwrap();
-    io::stdin()
-        .read_line(&mut height_str)
-        .expect("Failed to read line");
+        let height_cm: f64 = match height_str.trim().parse() {
+            Ok(num) => num,
+            Err(_) => {
+                ui.set_result_text("Error: Invalid height format!".into());
+                return;
+            }
+        };
 
-    let weight: f64 = match weight_str.trim().parse() {
-        Ok(num) => num,
-        Err(_) => {
-            eprintln!("Error: Please enter a valid number for weight.");
-            return;
+        let input = BmiInput { weight, height_cm };
+        match calculate_bmi(input) {
+            Ok(bmi) => {
+                let category = get_category(bmi);
+
+                let category_text = match category {
+                    BmiCategory::SevereThinness => "Severe Thinness",
+                    BmiCategory::ModerateThinness => "Moderate Thinness",
+                    BmiCategory::MildThinness => "Mild Thinness",
+                    BmiCategory::Normal => "Normal Weight",
+                    BmiCategory::OverWeight => "Overweight",
+                    BmiCategory::ObesityI => "Obese (Class I)",
+                    BmiCategory::ObesityII => "Obese (Class II)",
+                    BmiCategory::ObesityIII => "Obese (Class III)",
+                };
+
+                let message = format!("BMI: {:.1} ({})", bmi, category_text);
+                ui.set_result_text(message.into());
+            }
+            Err(BmiError::InvalidWeight) => {
+                ui.set_result_text("Error: Weight must be from 10 to 700 kg!".into());
+            }
+            Err(BmiError::InvalidHeight) => {
+                ui.set_result_text("Error: Height must be from 50 to 290 cm!".into());
+            }
         }
-    };
+    });
 
-    let height_cm: f64 = match height_str.trim().parse() {
-        Ok(num) => num,
-        Err(_) => {
-            eprintln!("Error: Please enter a valid number for height.");
-            return;
-        }
-    };
-
-    let input = BmiInput { weight, height_cm };
-
-    match calculate_bmi(input) {
-        Ok(bmi) => {
-            let category = get_category(bmi);
-            println!("\n--- Result ---");
-            println!("Body Mass Index: {:.2}", bmi);
-            println!("Your category: {:?}", category);
-        }
-        Err(e) => {
-            eprintln!("\nError: Validation failed. {:?}", e);
-        }
-    }
+    ui.run()
 }
